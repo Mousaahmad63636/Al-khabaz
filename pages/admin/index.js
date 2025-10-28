@@ -17,15 +17,22 @@ export default function AdminDashboard() {
 
   const loadDashboardData = async () => {
     try {
-      const response = await fetch('/api/menu-items');
+      // Add cache busting timestamp
+      const cacheBuster = `?t=${Date.now()}`;
+      const response = await fetch(`/api/menu-items${cacheBuster}`, {
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
+        }
+      });
       if (response.ok) {
         const items = await response.json();
         const categories = [...new Set(items.map(item => item.category))];
-        
         setStats({
           totalItems: items.length,
-          categories: categories.length,
-          recentActivity: items.slice(-5).reverse(), // Last 5 items added
+          totalCategories: categories.length,
+          recentItems: items.slice(-5).reverse(),
           loading: false
         });
       }

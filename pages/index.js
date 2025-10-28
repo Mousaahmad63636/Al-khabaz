@@ -3,6 +3,7 @@ import Head from 'next/head';
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
 import LoadingSkeleton from '../components/LoadingSkeleton';
+import { fetchWithNoCache, forceReload } from '../utils/cacheUtils';
 
 // Dynamic imports for better code splitting
 const MenuHeader = dynamic(() => import('../components/MenuHeader'), {
@@ -30,6 +31,53 @@ export default function Menu() {
   const [error, setError] = useState(null);
   const sectionRefs = useRef({});
 
+  // Manual refresh function
+  const handleManualRefresh = async () => {
+    console.log('Manual refresh triggered');
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      // Force reload with cache busting
+      const timestamp = Date.now();
+      const random = Math.random();
+      const cacheBuster = `?t=${timestamp}&r=${random}`;
+      
+      const [menuResponse, heroResponse] = await Promise.allSettled([
+        fetchWithNoCache(`/api/menu${cacheBuster}`),
+        fetchWithNoCache(`/api/hero-image${cacheBuster}`)
+      ]);
+      
+      // Handle menu data
+      if (menuResponse.status === 'fulfilled' && menuResponse.value.ok) {
+        const data = await menuResponse.value.json();
+        setMenuData(data);
+        
+        // Set the first main category and its first subcategory as active by default
+        if (data.mainCategories && data.mainCategories.length > 0) {
+          const firstCategory = data.mainCategories[0];
+          setActiveMainCategory(firstCategory.id);
+          
+          if (firstCategory.subcategories && firstCategory.subcategories.length > 0) {
+            setActiveSubcategory(firstCategory.subcategories[0].id);
+          }
+        }
+      }
+      
+      // Handle hero image
+      if (heroResponse.status === 'fulfilled' && heroResponse.value.ok) {
+        const heroData = await heroResponse.value.json();
+        setHeroImage(heroData);
+      }
+      
+    } catch (error) {
+      console.error('Manual refresh failed:', error);
+      setError('Failed to refresh menu data');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
     const loadMenuData = async () => {
       try {
@@ -37,15 +85,20 @@ export default function Menu() {
         setError(null);
         
         // Load menu data and hero image in parallel
+        const cacheBuster = `?t=${Date.now()}`;
         const [menuResponse, heroResponse] = await Promise.allSettled([
-          fetch('/api/menu', {
+          fetch(`/api/menu${cacheBuster}`, {
             headers: {
-              'Cache-Control': 'max-age=300' // 5 minutes cache
+              'Cache-Control': 'no-cache, no-store, must-revalidate',
+              'Pragma': 'no-cache',
+              'Expires': '0'
             }
           }),
-          fetch('/api/hero-image', {
+          fetch(`/api/hero-image${cacheBuster}`, {
             headers: {
-              'Cache-Control': 'max-age=3600' // 1 hour cache for images
+              'Cache-Control': 'no-cache, no-store, must-revalidate',
+              'Pragma': 'no-cache',
+              'Expires': '0'
             }
           })
         ]);
@@ -224,6 +277,29 @@ export default function Menu() {
         )}
 
         <MenuHeader restaurant={menuData.restaurant} />
+        
+        {/* Manual Refresh Button */}
+        <div className="bg-white border-b border-gray-200 px-4 py-2">
+          <button
+            onClick={handleManualRefresh}
+            disabled={isLoading}
+            className="w-full bg-menu-accent-500 hover:bg-menu-accent-600 disabled:bg-gray-400 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center justify-center space-x-2"
+          >
+            {isLoading ? (
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                <span>Refreshing...</span>
+              </>
+            ) : (
+              <>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                <span>Refresh Menu</span>
+              </>
+            )}
+          </button>
+        </div>
         
         {/* Main Category Navigation */}
         <MainCategoryNav

@@ -23,7 +23,15 @@ export default function MenuItems() {
   const loadItems = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch('/api/menu-items');
+      // Add cache busting timestamp
+      const cacheBuster = `?t=${Date.now()}`;
+      const response = await fetch(`/api/menu-items${cacheBuster}`, {
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
+        }
+      });
       if (!response.ok) {
         throw new Error('Failed to fetch menu items');
       }

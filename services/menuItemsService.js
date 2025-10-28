@@ -4,7 +4,15 @@
 // Fetch all menu items
 export const fetchMenuItems = async () => {
   try {
-    const response = await fetch('/api/menu-items');
+    // Add cache busting timestamp
+    const cacheBuster = `?t=${Date.now()}`;
+    const response = await fetch(`/api/menu-items${cacheBuster}`, {
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
+    });
     if (!response.ok) {
       throw new Error(`Error: ${response.status}`);
     }
