@@ -53,7 +53,7 @@ async function main() {
         category.subcategories.forEach(sub => {
           console.log(`   - ${sub.name}: ${sub.items.length} items`);
           if (sub.items.length > 0) {
-            console.log(`     Sample: ${sub.items[0].name} - $${sub.items[0].price}`);
+            console.log(`     Sample: ${sub.items[0].name} - ${sub.items[0].price}`);
           }
         });
       });

@@ -56,7 +56,7 @@ const MenuItem = React.memo(({ item }) => {
               {item.name}
             </h3>
             <span className="text-lg font-bold text-menu-accent-600 flex-shrink-0">
-              ${item.price}
+              {item.price}
             </span>
           </div>
           

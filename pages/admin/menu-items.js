@@ -233,7 +233,7 @@ export default function MenuItems() {
                 <div className="p-6">
                   <div className="flex items-start justify-between mb-2">
                     <h3 className="text-lg font-semibold text-menu-gray-900 truncate">{item.name}</h3>
-                    <span className="text-lg font-bold text-menu-accent-600 ml-2">${item.price}</span>
+                    <span className="text-lg font-bold text-menu-accent-600 ml-2">{item.price}</span>
                   </div>
                   
                   <div className="flex items-center mb-3">
