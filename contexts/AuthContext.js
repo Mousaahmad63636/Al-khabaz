@@ -22,6 +22,13 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Check if auth is available before setting up listener
+    if (!auth) {
+      console.warn('Firebase auth not available - skipping auth state listener');
+      setLoading(false);
+      return;
+    }
+
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
       setLoading(false);
@@ -31,6 +38,9 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const signIn = async (email, password) => {
+    if (!auth) {
+      return { success: false, error: 'Firebase auth not initialized' };
+    }
     try {
       const result = await signInWithEmailAndPassword(auth, email, password);
       return { success: true, user: result.user };
@@ -40,6 +50,9 @@ export const AuthProvider = ({ children }) => {
   };
 
   const signOut = async () => {
+    if (!auth) {
+      return { success: false, error: 'Firebase auth not initialized' };
+    }
     try {
       await firebaseSignOut(auth);
       return { success: true };
@@ -49,6 +62,9 @@ export const AuthProvider = ({ children }) => {
   };
 
   const signUp = async (email, password) => {
+    if (!auth) {
+      return { success: false, error: 'Firebase auth not initialized' };
+    }
     try {
       const result = await createUserWithEmailAndPassword(auth, email, password);
       return { success: true, user: result.user };
