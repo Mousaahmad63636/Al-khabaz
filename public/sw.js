@@ -7,8 +7,6 @@ const API_CACHE = 'api-v1';
 const STATIC_FILES = [
   '/',
   '/manifest.json',
-  '/_next/static/css/',
-  '/_next/static/js/',
 ];
 
 // API endpoints to cache

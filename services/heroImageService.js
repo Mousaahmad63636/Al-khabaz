@@ -11,6 +11,13 @@ const HERO_COLLECTION = 'siteSettings';
 export async function getHeroImage() {
   try {
     const db = getFirestoreDb();
+    
+    // Handle case when Firebase is not initialized
+    if (!db) {
+      console.warn('Firebase not initialized - returning null for hero image');
+      return null;
+    }
+    
     const docRef = db.collection(HERO_COLLECTION).doc(HERO_DOC_ID);
     const docSnap = await docRef.get();
 
@@ -32,6 +39,12 @@ export async function getHeroImage() {
 export async function saveHeroImage(imageBase64) {
   try {
     const db = getFirestoreDb();
+    
+    // Handle case when Firebase is not initialized
+    if (!db) {
+      throw new Error('Firebase not initialized - cannot save hero image');
+    }
+    
     const docRef = db.collection(HERO_COLLECTION).doc(HERO_DOC_ID);
     
     const heroData = {
@@ -55,6 +68,12 @@ export async function saveHeroImage(imageBase64) {
 export async function clearHeroImage() {
   try {
     const db = getFirestoreDb();
+    
+    // Handle case when Firebase is not initialized
+    if (!db) {
+      throw new Error('Firebase not initialized - cannot clear hero image');
+    }
+    
     const docRef = db.collection(HERO_COLLECTION).doc(HERO_DOC_ID);
     
     await docRef.set({
