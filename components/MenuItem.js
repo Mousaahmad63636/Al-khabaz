@@ -40,18 +40,18 @@ const MenuItem = React.memo(({ item }) => {
   };
 
   return (
-    <div className="bg-white border border-gray-100 rounded-xl p-6 mb-4 shadow-sm hover:shadow-md transition-all duration-200 hover:border-menu-accent-200">
+    <div className="bg-white border border-gray-100 rounded-xl p-3 sm:p-6 mb-4 shadow-sm hover:shadow-md transition-all duration-200 hover:border-menu-accent-200">
       <div className="flex items-start justify-between mb-3">
-        <div className="flex items-start space-x-3">
+        <div className="flex items-start space-x-2 sm:space-x-3 flex-1 min-w-0 mr-2">
           {/* Category Icon */}
-          <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-menu-accent-50 to-menu-accent-100 rounded-full flex items-center justify-center text-xl">
+          <div className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-menu-accent-50 to-menu-accent-100 rounded-full flex items-center justify-center text-lg sm:text-xl">
             {getCategoryIcon()}
           </div>
           
           {/* Item Info */}
           <div className="flex-1 min-w-0">
-            <div className="flex items-start justify-between mb-2">
-              <h3 className="text-xl font-bold text-gray-900 leading-tight">
+            <div className="mb-2">
+              <h3 className="text-lg sm:text-xl font-bold text-gray-900 leading-tight">
                 {item.name}
                 {item.popular && (
                   <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800 border border-amber-200">
@@ -106,12 +106,14 @@ const MenuItem = React.memo(({ item }) => {
         </div>
 
         {/* Price */}
-        <div className="flex-shrink-0 ml-4">
-          <div className="bg-gradient-to-r from-menu-accent-500 to-menu-accent-600 text-white px-4 py-2 rounded-xl shadow-sm">
-            <span className="text-lg font-bold">
-              {item.price}
-            </span>
-            <span className="text-xs opacity-90 ml-1">LL</span>
+        <div className="flex-shrink-0 ml-2 sm:ml-4">
+          <div className="bg-gradient-to-r from-menu-accent-500 to-menu-accent-600 text-white px-2 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl shadow-sm min-w-0">
+            <div className="text-right">
+              <div className="text-sm sm:text-lg font-bold leading-tight break-all">
+                {item.price}
+              </div>
+              <div className="text-xs opacity-90 leading-none">LL</div>
+            </div>
           </div>
         </div>
       </div>
