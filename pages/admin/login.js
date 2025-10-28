@@ -12,8 +12,9 @@ export default function AdminLogin() {
   const { user, signIn, loading } = useAuth();
 
   useEffect(() => {
-    // Redirect if user is already logged in
-    if (!loading && user) {
+    // Only redirect if we have a confirmed user (not just when loading is false)
+    if (!loading && user && user.uid) {
+      console.log('User authenticated, redirecting to admin dashboard');
       router.push('/admin');
     }
   }, [user, loading, router]);

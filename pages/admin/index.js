@@ -2,11 +2,13 @@ import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import AdminLayout from '../../components/AdminLayout';
+import AdminProtection from '../../components/AdminProtection';
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState({
     totalItems: 0,
-    categories: 0,
+    totalCategories: 0,
+    recentItems: [],
     recentActivity: [],
     loading: true
   });
@@ -33,12 +35,26 @@ export default function AdminDashboard() {
           totalItems: items.length,
           totalCategories: categories.length,
           recentItems: items.slice(-5).reverse(),
+          recentActivity: [], // Initialize as empty array
           loading: false
         });
+      } else {
+        // Handle API error
+        setStats(prev => ({ 
+          ...prev, 
+          loading: false,
+          recentActivity: [],
+          recentItems: []
+        }));
       }
     } catch (error) {
       console.error('Error loading dashboard data:', error);
-      setStats(prev => ({ ...prev, loading: false }));
+      setStats(prev => ({ 
+        ...prev, 
+        loading: false,
+        recentActivity: [],
+        recentItems: []
+      }));
     }
   };
 
@@ -53,10 +69,11 @@ export default function AdminDashboard() {
   }
 
   return (
-    <AdminLayout title="Dashboard">
-      <Head>
-        <title>Admin Dashboard</title>
-      </Head>
+    <AdminProtection>
+      <AdminLayout title="Dashboard">
+        <Head>
+          <title>Admin Dashboard</title>
+        </Head>
 
       <div className="space-y-6">
         {/* Header */}
@@ -105,7 +122,7 @@ export default function AdminDashboard() {
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-menu-gray-600">Categories</p>
-                <p className="text-2xl font-bold text-menu-gray-900">{stats.categories}</p>
+                <p className="text-2xl font-bold text-menu-gray-900">{stats.totalCategories}</p>
               </div>
             </div>
           </div>
@@ -163,7 +180,7 @@ export default function AdminDashboard() {
                 <span className="text-menu-gray-700">Manage Categories</span>
               </Link>
 
-              {stats.categories === 0 && (
+              {stats.totalCategories === 0 && (
                 <Link
                   href="/admin/setup-categories"
                   className="flex items-center p-3 rounded-lg hover:bg-blue-50 transition-colors border border-blue-200 bg-blue-50"
@@ -190,23 +207,24 @@ export default function AdminDashboard() {
           <div className="bg-white rounded-xl shadow-sm border border-menu-gray-100 p-6">
             <h3 className="text-lg font-semibold text-menu-gray-900 mb-4">Recent Activity</h3>
             <div className="space-y-3">
-              {stats.recentActivity.length > 0 ? (
-                stats.recentActivity.map((item, index) => (
+              {stats.recentItems && stats.recentItems.length > 0 ? (
+                stats.recentItems.map((item, index) => (
                   <div key={index} className="flex items-center p-3 rounded-lg bg-menu-gray-50">
                     <div className="w-2 h-2 bg-menu-accent-500 rounded-full mr-3"></div>
                     <div className="flex-1">
-                      <p className="text-sm font-medium text-menu-gray-900">{item.name}</p>
-                      <p className="text-xs text-menu-gray-500">{item.category}</p>
+                      <p className="text-sm font-medium text-menu-gray-900">{item.name || 'Unnamed Item'}</p>
+                      <p className="text-xs text-menu-gray-500">{item.category || 'No Category'}</p>
                     </div>
                   </div>
                 ))
               ) : (
-                <p className="text-menu-gray-500 text-sm">No recent activity</p>
+                <p className="text-menu-gray-500 text-sm">No recent items</p>
               )}
             </div>
           </div>
         </div>
       </div>
-    </AdminLayout>
+      </AdminLayout>
+    </AdminProtection>
   );
 }
