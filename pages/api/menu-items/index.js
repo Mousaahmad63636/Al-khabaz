@@ -4,6 +4,10 @@ export default async function handler(req, res) {
   switch (req.method) {
     case 'GET':
       // Public access for menu viewing
+      // Disable caching for immediate updates
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
       try {
         const items = await fetchMenuItems();
         res.status(200).json(items);

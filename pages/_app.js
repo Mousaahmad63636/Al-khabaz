@@ -7,15 +7,14 @@ import { reportWebVitals } from '../utils/performance';
 
 export default function App({ Component, pageProps }) {
   useEffect(() => {
-    // Register service worker for caching and offline functionality
-    if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
-      navigator.serviceWorker.register('/sw.js')
-        .then((registration) => {
-          console.log('SW registered: ', registration);
-        })
-        .catch((registrationError) => {
-          console.log('SW registration failed: ', registrationError);
+    // Disable service worker to prevent caching issues during development
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then((registrations) => {
+        registrations.forEach((registration) => {
+          registration.unregister();
+          console.log('Service worker unregistered');
         });
+      });
     }
   }, []);
 
@@ -27,6 +26,12 @@ export default function App({ Component, pageProps }) {
           <meta name="description" content="Digital menu for Brew Caffe restaurant" />
           <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
           <meta name="theme-color" content="#f97316" />
+          
+          {/* Disable all caching */}
+          <meta httpEquiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+          <meta httpEquiv="Pragma" content="no-cache" />
+          <meta httpEquiv="Expires" content="0" />
+          
           <link rel="icon" href="/favicon.ico" />
           <link rel="manifest" href="/manifest.json" />
           <link rel="apple-touch-icon" href="/favicon.ico" />
