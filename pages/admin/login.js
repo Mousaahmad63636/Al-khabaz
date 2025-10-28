@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../../lib/firebaseClient';
+import { useAuth } from '../../contexts/AuthContext';
 
 export default function AdminLogin() {
   const [email, setEmail] = useState('');
@@ -10,17 +9,14 @@ export default function AdminLogin() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
+  const { user, signIn, loading } = useAuth();
 
   useEffect(() => {
-    // Check if user is already logged in
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      if (user) {
-        router.push('/admin');
-      }
-    });
-
-    return () => unsubscribe();
-  }, [router]);
+    // Redirect if user is already logged in
+    if (!loading && user) {
+      router.push('/admin');
+    }
+  }, [user, loading, router]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -28,30 +24,28 @@ export default function AdminLogin() {
     setError('');
 
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-      router.push('/admin');
+      const result = await signIn(email, password);
+      if (result.success) {
+        router.push('/admin');
+      } else {
+        setError(result.error || 'Login failed. Please try again.');
+      }
     } catch (error) {
       console.error('Login error:', error);
-      setError(getErrorMessage(error.code));
+      setError('Login failed. Please try again.');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const getErrorMessage = (errorCode) => {
-    switch (errorCode) {
-      case 'auth/user-not-found':
-        return 'No account found with this email address.';
-      case 'auth/wrong-password':
-        return 'Incorrect password.';
-      case 'auth/invalid-email':
-        return 'Invalid email address.';
-      case 'auth/too-many-requests':
-        return 'Too many failed attempts. Please try again later.';
-      default:
-        return 'Login failed. Please check your credentials.';
-    }
-  };
+  // Show loading spinner while auth is initializing
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-menu-gray-50 to-menu-gray-100">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-menu-accent-500"></div>
+      </div>
+    );
+  }
 
   return (
     <>
